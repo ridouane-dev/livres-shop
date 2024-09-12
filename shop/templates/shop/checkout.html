@@ -1,0 +1,170 @@
+{% extends "shop/base.html" %}
+
+{% block content %} 
+
+<div class="row">
+    <div class="col-md-12">
+        <h3 class="text-center">Voici votre liste de vos produits veuillez saisir la quantite  </h3>
+        <ul class="list-group" id="item-list">
+            <h3 class="text-center">Voici votre liste de produits</h3>
+            
+        </ul>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-12">
+        <form method="POST">
+            {% csrf_token %}
+            <input type="hidden" id="items", name="items" >
+        <div class="form-row">
+          <div class="form-group col-md-6">
+            <label for="inputEmail4">Nom</label>
+            <input type="text" id="Nom" name="Nom" class="form-control" id="inputEmail4" placeholder="Enter le nom de votre ecole">
+          </div>
+          <div class="form-group col-md-6">
+            <label for="inputPassword4">Telephone</label> <!-- A changer -->
+            <input type="text" id="Telephone" name="Telephone" class="form-control" id="inputPassword4" placeholder="Entrez votre numero de Telephone">
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="inputAddress">Address</label>
+          <input type="text" id="Address" name="Address" class="form-control" id="inputAddress" placeholder="Entrez votre adresse">
+        </div>
+        
+       <div class="form-row">
+          <div class="form-group col-md-6">
+            <label for="inputCity">Quartier</label>
+            <input type="text" id="Quartier" name="Quartier"   class="form-control" id="inputCity" placeholder="Entrez votre quartier" >
+          </div>
+          <div class="form-group col-md-4">
+            <label for="inputState">Regions</label>
+            <select id="Regions" name="Regions" class="form-control">
+              <option selected>NiAMEY</option>
+              <option>DOSSO</option>
+              <option >MARADI</option>
+              <option >ZINDER</option>
+              <option >DIFFA</option>
+              <option >AGADEZ</option>
+              <option >TAHOUA</option>
+              <option >TILLABERI</option>
+            </select>
+          </div>
+         <div class="form-group col-md-2">
+            <label for="inputZip">Zip</label>
+            <input name="zipcode" id="zipcode" type="text" class="form-control">
+          </div>
+          <div class="form-group col-md-2">
+            <label for="inputZip">Somme total a payer </label>
+            <input name="total" id="total" type="readonly" class=" bg-dark text-warning form-control">
+          </div>
+        </div>
+        <div class="form-group">
+        
+        </div>
+        <button id="commander" type="submit" class="btn btn-primary">Commander</button>
+      </form></div>
+</div>
+{% endblock %}
+{% block js %} 
+<!--
+<script type="text/javascript">
+    if(localStorage.getItem('panier')==null){
+        var panier ={};
+    }else{
+        panier = JSON.parse(localStorage.getItem('panier'));
+    }
+    for(item in panier){
+        let nom = panier[item][1];
+        let quantite = panier[item][0];
+        let itemString =`<li class="list-group-item d-flex justify-content-between align-items-center">
+              ${nom}
+              <span class="badge badge-primary badge-pill">Qte ${quantite}</span>
+            </li>`;
+            $('#item-list').append(itemString);
+    }
+
+
+
+</script>
+-->
+<script type="text/javascript">
+  // Initialiser le panier à partir du localStorage ou en tant qu'objet vide
+  let panier = localStorage.getItem('panier') ? JSON.parse(localStorage.getItem('panier')) : {};
+
+  // Fonction pour mettre à jour l'affichage du panier
+  function afficherPanier() {
+      $('#item-list').empty(); // Vider la liste existante pour éviter la duplication
+
+      // Initialiser les variables pour le calcul du total
+      let x = 1;
+      let total = 0;
+      let nombre = 0;
+
+      // Parcourir chaque article dans le panier
+      for (let item in panier) {
+          let nom = panier[item][1]; // Nom de l'article
+          let quantite = panier[item][0]; // Quantité de l'article
+          let prix = panier[item][2]; // Prix de l'article
+          nombre += quantite;
+          total += prix * quantite; // Multiplier le prix par la quantité
+          
+          // Créer un élément HTML pour l'article avec un champ de saisie pour la quantité
+          let itemString = `
+              <li class="list-group-item d-flex justify-content-between align-items-center">
+                  (${x})  ${nom} 
+                  <span class="badge badge-warning badge-pill">${prix} FCFA</span>   
+                  <input type="number" min="1" value="${quantite}" class="form-control quantity-input" data-item-id="${item}" style="width: 80px; margin-left: 10px;">
+              </li>`;
+          
+          // Ajouter l'élément à la liste
+          $('#item-list').append(itemString);
+          x += 1;
+      }
+      $('#items').val(JSON.stringify(panier));
+
+      // Afficher le prix et la quantité totaux
+      let itemNombre = `
+          <li class="list-group-item d-flex justify-content-between align-items-center">
+              <b class="bg-danger">PRIX ET QUANTITÉ TOTAUX</b>
+              <span class="badge badge-danger badge-pill">${total} FCFA</span>   
+              <span class="badge badge-primary badge-pill">Total Qte: ${nombre}</span>
+          </li>`;
+      $('#item-list').append(itemNombre);
+      $('#total').val(total + " FCFA");
+
+      // Ajouter des écouteurs d'événements pour les champs de saisie de quantité
+      $('.quantity-input').on('change', function () {
+          let itemId = $(this).data('item-id'); // Obtenir l'identifiant de l'article
+          let nouvelleQuantite = parseInt($(this).val()); // Obtenir la nouvelle quantité entrée par l'utilisateur
+
+          // Mettre à jour la quantité dans le panier
+          panier[itemId][0] = nouvelleQuantite;
+
+          // Enregistrer le panier mis à jour dans le localStorage
+          localStorage.setItem('panier', JSON.stringify(panier));
+
+          // Réafficher le panier pour mettre à jour le prix total et la quantité
+          afficherPanier();
+      });
+  }
+
+  // Afficher le panier au chargement de la page
+  afficherPanier();
+
+  // Ajouter un gestionnaire d'événements pour le bouton "Commander"
+  $('#commander').on('click', function() {
+      // Vider le localStorage
+      localStorage.removeItem('panier'); // Supprimer uniquement le panier du localStorage
+
+      // Réinitialiser le panier et réafficher
+      panier = {}; // Réinitialiser le panier local à un objet vide
+    
+
+      
+  });
+</script>
+  
+
+
+
+{% endblock %}
