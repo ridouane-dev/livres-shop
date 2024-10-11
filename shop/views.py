@@ -41,6 +41,9 @@ def confirmation(request):
         nom = item.Nom
     return render(request, 'shop/confirmation.html', {'name':nom})
 
+def acceuille(request):
+    return render(request, 'shop/acceuille.html')
+
 
 
 
