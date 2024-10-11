@@ -1,6 +1,23 @@
 {% extends "shop/base.html" %}
+{% load static %}
 
-{% block content %} 
-<h1>Bienvenue sur ma page d'Acceuille</h1>
+{% block content %}
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-image: url("{% static 'images/flyers.jpg' %}");
+            background-size: cover;      /* L'image couvre toute la page */
+            background-repeat: no-repeat; /* L'image ne se répète pas */
+            background-position: center;  /* L'image est centrée */
+            height: 100vh;               /* La hauteur prend toute la page */
+            width: 100vw;                /* La largeur prend toute la page */
+        }
+    </style>
+
+    <!-- Si tu veux afficher une image en plus du background -->
+    <div style="text-align: center; margin-top: 20px;">
+        <img src="{% static 'images/flyers.png' %}" alt="Description de l'image" style="max-width: 100%; height: auto;">
+    </div>
 
 {% endblock %}
